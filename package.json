@@ -1,0 +1,16 @@
+{
+  "name": "com.sapra.easy-parameters",
+  "version": "1.0.0",
+  "displayName": "Easy Parameters",
+  "description": "Connection of Animator Parameters \ndirectly into the inspector window",
+  "unity": "2019.1",
+  "keywords": [
+    "animator",
+    "parameters",
+    "easy",
+    "inspector"
+  ],
+  "author": {
+    "name": "Sapra"
+  }
+}
