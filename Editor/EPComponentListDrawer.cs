@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using UnityEngine;
 using UnityEditorInternal;
 using UnityEditor;
@@ -44,3 +45,4 @@ namespace sapra.EasyParameters.Editor
         }
     }
 }
+#endif
