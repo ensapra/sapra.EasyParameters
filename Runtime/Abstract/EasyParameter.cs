@@ -20,13 +20,11 @@ namespace sapra.EasyParameters
             object originalComponent = GetSelectedObject();
             if(originalComponent == null)
                 return;
-            Debug.Log(fieldName);
             string[] fields = fieldName.Split('/');
             string variableName = fields[fields.Length-1].Split(' ')[1];
             object objectFound = null;
             for(int i = 1; i < fields.Length; i++)
             {
-                Debug.Log(fields[i]);
                 if(objectFound == null)
                     objectFound = GetParameter(originalComponent, fields[i]);
                 else
