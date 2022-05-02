@@ -312,7 +312,7 @@ GameObject:
   - component: {fileID: 1088505979}
   - component: {fileID: 1088505978}
   - component: {fileID: 1088505977}
-  - component: {fileID: 1088505976}
+  - component: {fileID: 1088505980}
   m_Layer: 0
   m_Name: EmptyAnimator
   m_TagString: Untagged
@@ -320,20 +320,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1088505976
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1088505975}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4ecf17f06017044f904731d8c6b3ddb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  aFloatValue: 0
-  aBoolValue: 0
 --- !u!114 &1088505977
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -348,12 +334,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   easyParameter:
     easyParameterList:
-    - fieldName: AFloat/float aFloatValue
+    - fieldName: sapra.EasyParameters.Samples.AFloat/float aFloatValue
       nameOnAnimator: FloatValue
-      componentFound: {fileID: 1088505976}
-    - fieldName: AFloat/bool aBoolValue
+      componentFound: {fileID: 1088505980}
+    - fieldName: sapra.EasyParameters.Samples.AFloat/bool aBoolValue
       nameOnAnimator: BoolValue
-      componentFound: {fileID: 1088505976}
+      componentFound: {fileID: 1088505980}
 --- !u!95 &1088505978
 Animator:
   serializedVersion: 4
@@ -389,3 +375,17 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1088505980
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1088505975}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29d241ed760025a4cb51d62499b7cc76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  aFloatValue: 0
+  aBoolValue: 0
