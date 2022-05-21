@@ -13,5 +13,12 @@
   "author": {
     "name": "Sapra",
     "url": "https://github.com/darksapra"
-  }
+  },
+  "samples": [
+    {
+      "displayName": "Basic Implementation",
+      "description": "Contains implementations of the most basic scripts to be created to have something visual",
+      "path": "Samples~/BasicImplementation"
+    }
+  ]
 }
