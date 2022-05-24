@@ -9,6 +9,9 @@ namespace sapra.EasyParameters
         [SerializeField]
         public string nameOnAnimator = "";
         public object finalObject = null;
+        /// <summary>
+        /// Must return the selected object containing the variable.
+        /// <summary/>
         public abstract object GetSelectedObject();
         public void SetParameter(string fieldName, string nameOnAnimator)
         {

@@ -8,7 +8,7 @@ namespace sapra.EasyParameters.Editor
     [CustomPropertyDrawer(typeof(EPComponent))]
     public class EPComponentDrawer : EasyParameterDrawer
     {
-        public override GenericMenu GenerateSelectionMenu(object component, string currentDirection, SerializedProperty property)
+        protected override GenericMenu GenerateSelectionMenu(object component, string currentDirection, SerializedProperty property)
         {
             GenericMenu newMenu = new GenericMenu();
             Component currentComponent = (Component)component;
@@ -34,7 +34,7 @@ namespace sapra.EasyParameters.Editor
                     string simpleDirection = getWithoutDot(field);
                     newMenu.AddItem(new GUIContent(simpleDirection), currentDirection.Equals(simpleDirection), 
                     () => {
-                        Undo.RecordObject(property.serializedObject.targetObject, "Added a new animation to " + property.serializedObject.targetObject.name);
+                        Undo.RecordObject(property.serializedObject.targetObject, "Added a new parameters to " + property.serializedObject.targetObject.name);
                         property.FindPropertyRelative("componentFound").objectReferenceValue = componentFound;
                         property.FindPropertyRelative("fieldName").stringValue = field;
                         property.serializedObject.ApplyModifiedProperties();
@@ -44,17 +44,17 @@ namespace sapra.EasyParameters.Editor
             return newMenu;
         }
 
-        public override object GetComponentReference(SerializedProperty property)
+        protected override object GetComponentReference(SerializedProperty property)
         {
             return (Component)property.FindPropertyRelative("componentFound").objectReferenceValue;
         }
 
-        public override void NoComponent(Rect buttonPosition)
+        protected override void NoComponent(Rect buttonPosition)
         {
             EditorGUI.DropShadowLabel(buttonPosition, "Select a component first");
         }
 
-        public override void ObjectField(SerializedProperty property, Rect ComponentPosition)
+        protected override void ObjectField(SerializedProperty property, Rect ComponentPosition)
         {
             //Second line of editor
             EditorGUI.BeginChangeCheck();

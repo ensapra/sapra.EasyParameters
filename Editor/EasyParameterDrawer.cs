@@ -11,10 +11,23 @@ namespace sapra.EasyParameters.Editor
 {
     public abstract class EasyParameterDrawer : PropertyDrawer
     {
-        public abstract object GetComponentReference(SerializedProperty property);
-        public abstract void NoComponent(Rect buttonPosition);
-        public abstract GenericMenu GenerateSelectionMenu(object component, string currentDirection, SerializedProperty property);
-        public abstract void ObjectField(SerializedProperty property, Rect ComponentPosition);
+        /// <summary>
+        /// Retrieve reference of the object from the property
+        /// <summary/>
+        protected abstract object GetComponentReference(SerializedProperty property);
+        /// <summary>
+        /// Text that appears if a component is not selected at the position of buttonPosition
+        /// <summary/>
+        protected abstract void NoComponent(Rect buttonPosition);
+        /// <summary>
+        /// Returns a menu with a way to select components
+        /// <summary/>
+        protected abstract GenericMenu GenerateSelectionMenu(object component, string currentDirection, SerializedProperty property);
+        /// <summary>
+        /// Draws the second line on the editor
+        /// <summary/>
+        protected abstract void ObjectField(SerializedProperty property, Rect ComponentPosition);
+        
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             //Begin Property Drawer

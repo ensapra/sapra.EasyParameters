@@ -4,15 +4,10 @@ using UnityEngine;
 
 namespace sapra.EasyParameters
 {
-    [RequireComponent(typeof(Animator))]
     public class ParameterController : MonoBehaviour
     {
         public EPComponentList easyParameter = new EPComponentList();
-        private Animator _animator;
-        private void Awake()
-        {
-            _animator = GetComponent<Animator>();
-        }
+        public Animator _animator;
         void Update()
         {
             easyParameter.ApplyParameters(_animator);    
