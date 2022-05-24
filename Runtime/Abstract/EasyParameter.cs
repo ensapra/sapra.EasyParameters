@@ -8,7 +8,6 @@ namespace sapra.EasyParameters
         [SerializeField] private string fieldName = "";
         [SerializeField] private string nameOnAnimator = "";
         [SerializeField] private object finalObject = null;
-        [SerializeField] private object holderObject = null;
         /// <summary>
         /// Must return the selected object containing the variable.
         /// <summary/>
