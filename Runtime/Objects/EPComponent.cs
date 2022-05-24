@@ -5,13 +5,8 @@ using UnityEngine;
 namespace sapra.EasyParameters
 {
     [System.Serializable]
-    public class EPComponent : EasyParameter
+    public class EPComponent : EasyParameter<Component>
     {
-        [SerializeField]
-        public Component componentFound = null;
-        public override object GetSelectedObject()
-        {
-            return componentFound;
-        }
+        
     }
 }

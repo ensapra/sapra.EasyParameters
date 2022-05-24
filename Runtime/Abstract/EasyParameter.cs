@@ -3,16 +3,12 @@ using System.Reflection;
 
 namespace sapra.EasyParameters
 {
-    public abstract class EasyParameter
+    public abstract class EasyParameter<T> where T : class
     {
-        public string fieldName = "";
-        [SerializeField]
-        public string nameOnAnimator = "";
-        public object finalObject = null;
-        /// <summary>
-        /// Must return the selected object containing the variable.
-        /// <summary/>
-        public abstract object GetSelectedObject();
+        [SerializeField] private string fieldName = "";
+        [SerializeField] private string nameOnAnimator = "";
+        [SerializeField] private object finalObject = null;
+        [SerializeField] [SerializeReference] private T parentObject;
         public void SetParameter(string fieldName, string nameOnAnimator)
         {
             this.fieldName = fieldName;
@@ -20,7 +16,7 @@ namespace sapra.EasyParameters
         }
         public void ProcessEasyParameter(Animator _animator)
         {
-            object originalComponent = GetSelectedObject();
+            object originalComponent = parentObject;// GetSelectedObject();
             if(originalComponent == null)
                 return;
             string[] fields = fieldName.Split('/');

@@ -9,24 +9,17 @@ using sapra.EasyParameters;
 
 namespace sapra.EasyParameters.Editor
 {
-    public abstract class EasyParameterDrawer : PropertyDrawer
+    public abstract class EasyParameterDrawer<T> : PropertyDrawer where T : class
     {
-        /// <summary>
-        /// Retrieve reference of the object from the property
-        /// <summary/>
-        protected abstract object GetComponentReference(SerializedProperty property);
-        /// <summary>
-        /// Text that appears if a component is not selected at the position of buttonPosition
-        /// <summary/>
-        protected abstract void NoComponent(Rect buttonPosition);
-        /// <summary>
-        /// Returns a menu with a way to select components
-        /// <summary/>
-        protected abstract GenericMenu GenerateSelectionMenu(object component, string currentDirection, SerializedProperty property);
         /// <summary>
         /// Draws the second line on the editor
         /// <summary/>
         protected abstract void ObjectField(SerializedProperty property, Rect ComponentPosition);
+
+        /// <summary>
+        /// Should return the list of objects to be analized
+        /// <summary/>
+        protected abstract object[] GetObjects(object component);
         
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
@@ -36,7 +29,12 @@ namespace sapra.EasyParameters.Editor
             EditorGUI.BeginProperty(position, label, property);
 
             //Get currentValues
-            object currentComponent = GetComponentReference(property);
+            object currentComponent = null;
+            if(typeof(T).IsEquivalentTo(typeof(Component)))
+                currentComponent = property.FindPropertyRelative("parentObject").objectReferenceValue;
+            else
+                currentComponent = property.FindPropertyRelative("parentObject").managedReferenceValue;
+            
             string fieldValue = property.FindPropertyRelative("fieldName").stringValue;
             string currentDirection = "";
             if(fieldValue != "" && currentComponent != null)
@@ -55,13 +53,39 @@ namespace sapra.EasyParameters.Editor
             if(currentDirection == "")
                 buttonText = "Select a Field";        
             if(currentComponent == null)
-                NoComponent(ButtonPosition);
+                EditorGUI.DropShadowLabel(ButtonPosition, "An Object should be selected");
             else
             {       
                 if(GUI.Button(ButtonPosition, buttonText))
                 {
-                    GenericMenu menu = GenerateSelectionMenu(currentComponent, currentDirection, property);
-                    menu.ShowAsContext();
+                    GenericMenu newMenu = new GenericMenu();
+                    newMenu.AddItem(new GUIContent("None"), currentDirection.Equals(""), 
+                    () =>
+                    {
+                        property.FindPropertyRelative("fieldName").stringValue = "";
+                        property.serializedObject.ApplyModifiedProperties();
+                    });
+                    object[] objectsFound = GetObjects(currentComponent);
+                    foreach(object objectFound in objectsFound)
+                    {
+                        List<string> fieldsFound = new List<string>();
+                        GetFields(objectFound.GetType(), ref fieldsFound, objectFound.GetType().ToString());
+                        foreach(string field in fieldsFound)      
+                        {
+                            string simpleDirection = getWithoutDot(field);
+                            newMenu.AddItem(new GUIContent(simpleDirection), currentDirection.Equals(simpleDirection), 
+                            () => {
+                                Undo.RecordObject(property.serializedObject.targetObject, "Added a new parameters to " + property.serializedObject.targetObject.name);
+                                if(typeof(T).IsEquivalentTo(typeof(Component)))
+                                    property.FindPropertyRelative("parentObject").objectReferenceValue = objectFound as Component;
+                                else
+                                    property.FindPropertyRelative("parentObject").managedReferenceValue = (T)objectFound;
+                                property.FindPropertyRelative("fieldName").stringValue = field;
+                                property.serializedObject.ApplyModifiedProperties();
+                            });          
+                        }           
+                    }
+                    newMenu.ShowAsContext();
                 }
             }
 
