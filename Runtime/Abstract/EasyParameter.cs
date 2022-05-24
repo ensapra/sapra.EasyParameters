@@ -5,13 +5,14 @@ namespace sapra.EasyParameters
 {
     public abstract class EasyParameter
     {
-        public string fieldName = "";
-        [SerializeField]
-        public string nameOnAnimator = "";
-        public object finalObject = null;
+        [SerializeField] private string fieldName = "";
+        [SerializeField] private string nameOnAnimator = "";
+        [SerializeField] private object finalObject = null;
+        [SerializeField] private object holderObject = null;
         /// <summary>
         /// Must return the selected object containing the variable.
         /// <summary/>
+        
         public abstract object GetSelectedObject();
         public void SetParameter(string fieldName, string nameOnAnimator)
         {
