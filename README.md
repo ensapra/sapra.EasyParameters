@@ -11,5 +11,5 @@ However, you can implement your own version by creating a script inheriting from
 Here you can see a simple controller, with a list of component easy parameters,
 ![image](https://user-images.githubusercontent.com/61149758/170071670-c9c7e8c2-3e7b-4764-9057-16fbf91de724.png)
 
-And you can find each variable on those, and other components for use.
+And you can find each variable on those, and other components for use, by adding them to the list
 ![image](https://user-images.githubusercontent.com/61149758/170071866-bd8bd9b5-8467-457c-9157-fb32fc3346f2.png)
