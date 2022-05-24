@@ -9,12 +9,8 @@ using sapra.EasyParameters;
 
 namespace sapra.EasyParameters.Editor
 {
-    public abstract class EasyParameterDrawer : PropertyDrawer
+    public abstract class EasyParameterDrawer<T> : PropertyDrawer where T : class
     {
-        /// <summary>
-        /// Retrieve reference of the object from the property that has been selected
-        /// <summary/>
-        protected abstract object GetComponentReference(SerializedProperty property);
         /// <summary>
         /// Draws the second line on the editor
         /// <summary/>
@@ -25,8 +21,6 @@ namespace sapra.EasyParameters.Editor
         /// <summary/>
         protected abstract object[] GetObjects(object component);
         
-        protected abstract void SetObject(object component, SerializedProperty property);
-        
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             //Begin Property Drawer
@@ -35,7 +29,12 @@ namespace sapra.EasyParameters.Editor
             EditorGUI.BeginProperty(position, label, property);
 
             //Get currentValues
-            object currentComponent = GetComponentReference(property);
+            object currentComponent = null;
+            if(typeof(T).IsEquivalentTo(typeof(Component)))
+                currentComponent = property.FindPropertyRelative("parentObject").objectReferenceValue;
+            else
+                currentComponent = property.FindPropertyRelative("parentObject").managedReferenceValue;
+            
             string fieldValue = property.FindPropertyRelative("fieldName").stringValue;
             string currentDirection = "";
             if(fieldValue != "" && currentComponent != null)
@@ -77,7 +76,10 @@ namespace sapra.EasyParameters.Editor
                             newMenu.AddItem(new GUIContent(simpleDirection), currentDirection.Equals(simpleDirection), 
                             () => {
                                 Undo.RecordObject(property.serializedObject.targetObject, "Added a new parameters to " + property.serializedObject.targetObject.name);
-                                SetObject(objectFound, property);
+                                if(typeof(T).IsEquivalentTo(typeof(Component)))
+                                    property.FindPropertyRelative("parentObject").objectReferenceValue = objectFound as Component;
+                                else
+                                    property.FindPropertyRelative("parentObject").managedReferenceValue = (T)objectFound;
                                 property.FindPropertyRelative("fieldName").stringValue = field;
                                 property.serializedObject.ApplyModifiedProperties();
                             });          

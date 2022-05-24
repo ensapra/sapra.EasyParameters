@@ -6,7 +6,7 @@ using sapra.EasyParameters;
 namespace sapra.EasyParameters.Editor
 {
     [CustomPropertyDrawer(typeof(EPComponent))]
-    public class EPComponentDrawer : EasyParameterDrawer
+    public class EPComponentDrawer : EasyParameterDrawer<Component>
     {
         protected override object[] GetObjects(object component)
         {
@@ -19,22 +19,13 @@ namespace sapra.EasyParameters.Editor
             return arrayOfComponents;
         }
 
-        protected override object GetComponentReference(SerializedProperty property)
-        {
-            return property.FindPropertyRelative("componentFound").objectReferenceValue;
-        }
-
         protected override void ObjectField(SerializedProperty property, Rect ComponentPosition)
         {
             //Second line of editor
             EditorGUI.BeginChangeCheck();
-            EditorGUI.ObjectField(ComponentPosition, property.FindPropertyRelative("componentFound"), GUIContent.none);
+            EditorGUI.ObjectField(ComponentPosition, property.FindPropertyRelative("parentObject"), GUIContent.none);
             if(EditorGUI.EndChangeCheck())     
                 property.FindPropertyRelative("fieldName").stringValue = "";    
-        }
-        protected override void SetObject(object component, SerializedProperty property)
-        {
-            property.FindPropertyRelative("componentFound").objectReferenceValue = (Component)component;
         }
     }
 }
