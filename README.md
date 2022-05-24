@@ -14,7 +14,8 @@ To do a custom implementation you must create two basic scripts.
 
 2 - Deriving from EasyParametersDrawer, implementing the two methods. 
 
-GetMethods(): Return a list of those objects that need to be taken into account
+GetMethods(): Return a list of those objects that need to be taken into account.
+
 ObjectField(): Fill up the field of the component selection, bottow left.
   
 ## Example
