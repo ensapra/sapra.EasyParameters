@@ -1,5 +1,5 @@
 {
-    "name": "com.sapra.easy-parameters.Editor",
+    "name": "sapra.EasyParameters.Editor",
     "rootNamespace": "sapra",
     "references": [
         "GUID:66208f50338ebab47b0461391e926a67"

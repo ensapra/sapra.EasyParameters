@@ -1,5 +1,5 @@
 {
-    "name": "com.sapra.easy-parameters.Runtime",
+    "name": "sapra.EasyParameters.Runtime",
     "rootNamespace": "sapra",
     "references": [],
     "includePlatforms": [],
