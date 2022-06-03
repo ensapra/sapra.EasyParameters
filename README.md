@@ -14,9 +14,9 @@ To do a custom implementation you must create two basic scripts.
 
 2 - Deriving from EasyParametersDrawer, implementing the two methods. 
 
-GetMethods(): Return a list of those objects that need to be taken into account.
+GetMethods(): Return a list of those objects that need to be taken into account when selecting a field. The parameter, "component", refers to the object selected. Ex: On the implementation EPComponent, this method returns all the components that can be found in relation to the component selected. 
 
-ObjectField(): Fill up the field of the component selection, bottow left.
+ObjectField(): Fill up the field of the component selection, bottow left. This field should assign the serializedProperty, "parentObject" to the object containing the desired field to connect with the Animator. Ex: On the implementation EPComponent, this method creates an Object Field from where a component can be selected. 
   
 ## Example
 Here you can see a simple controller, with a list of component easy parameters,
