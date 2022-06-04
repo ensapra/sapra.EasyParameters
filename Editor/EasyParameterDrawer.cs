@@ -30,7 +30,8 @@ namespace sapra.EasyParameters.Editor
 
             //Get currentValues
             object currentComponent = null;
-            if(typeof(T).IsEquivalentTo(typeof(Component)))
+            bool isObject = typeof(T).IsEquivalentTo(typeof(Component));
+            if(isObject)
                 currentComponent = property.FindPropertyRelative("parentObject").objectReferenceValue;
             else
                 currentComponent = property.FindPropertyRelative("parentObject").managedReferenceValue;
@@ -38,7 +39,10 @@ namespace sapra.EasyParameters.Editor
             string fieldValue = property.FindPropertyRelative("fieldName").stringValue;
             string currentDirection = "";
             if(fieldValue != "" && currentComponent != null)
-                currentDirection = getWithoutDot(currentComponent.GetType() + "/" + fieldValue);
+            {
+                string text = isObject ? currentComponent.GetType() + "/" + fieldValue : fieldValue;
+                currentDirection = getWithoutDot(text);
+            }
 
             //Declare dimentions of each button
             var ButtonPosition = new Rect(position.x, position.y, position.width-position.width/4, position.height/2-5);
