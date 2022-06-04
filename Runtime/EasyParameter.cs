@@ -14,6 +14,10 @@ namespace sapra.EasyParameters
             this.fieldName = fieldName;
             this.nameOnAnimator = nameOnAnimator;
         }
+        public void SetParentObject(T parentObject)
+        {
+            this.parentObject = parentObject;
+        }
         public void ProcessEasyParameter(Animator _animator)
         {
             object originalComponent = parentObject;// GetSelectedObject();
