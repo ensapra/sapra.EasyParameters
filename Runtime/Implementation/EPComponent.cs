@@ -5,7 +5,7 @@ using UnityEngine;
 namespace sapra.EasyParameters
 {
     [System.Serializable]
-    public class EPComponent : EasyParameter<Component>
+    public class EPComponent : EasyParameter
     {
         
     }

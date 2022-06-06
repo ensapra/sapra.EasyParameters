@@ -3,18 +3,18 @@ using System.Reflection;
 
 namespace sapra.EasyParameters
 {
-    public abstract class EasyParameter<T> where T : class
+    public abstract class EasyParameter
     {
         [SerializeField] private string fieldName = "";
         [SerializeField] private string nameOnAnimator = "";
         [SerializeField] private object finalObject = null;
-        [SerializeField] [SerializeReference] private T parentObject;
+        [SerializeField] [SerializeReference] private object parentObject;
         public void SetParameter(string fieldName, string nameOnAnimator)
         {
             this.fieldName = fieldName;
             this.nameOnAnimator = nameOnAnimator;
         }
-        public void SetParentObject(T parentObject)
+        public void SetParentObject(object parentObject)
         {
             this.parentObject = parentObject;
         }
