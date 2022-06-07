@@ -28,8 +28,18 @@ namespace sapra.EasyParameters.Editor
             EditorGUI.indentLevel = 0;
             EditorGUI.BeginProperty(position, label, property);
 
+            GenerateTopLine(property, position);
+            GenerateBottomLine(property, position);
+
+            //End property Drawer
+            EditorGUI.indentLevel = indent;
+            EditorGUI.EndProperty();
+        }
+
+        public void GetComponentAndDirection(out object currentComponent, out string currentDirection, SerializedProperty property)
+        {
             //Get currentValues
-            object currentComponent = null;
+            currentComponent = null;
             bool isObject = typeof(T).IsEquivalentTo(typeof(Component));
             if(isObject)
                 currentComponent = property.FindPropertyRelative("parentObject").objectReferenceValue;
@@ -37,20 +47,24 @@ namespace sapra.EasyParameters.Editor
                 currentComponent = property.FindPropertyRelative("parentObject").managedReferenceValue;
             
             string fieldValue = property.FindPropertyRelative("fieldName").stringValue;
-            string currentDirection = "";
+            currentDirection = "";
             if(fieldValue != "" && currentComponent != null)
             {
                 string text = isObject ? currentComponent.GetType() + "/" + fieldValue : fieldValue;
                 currentDirection = getWithoutDot(text);
             }
-
-            //Declare dimentions of each button
+        }
+        
+        private void GenerateTopLine(SerializedProperty property,Rect position)
+        {
             var ButtonPosition = new Rect(position.x, position.y, position.width-position.width/4, position.height/2-5);
             var LabelPosition = new Rect(position.x+(position.width-position.width/4)+3, position.y+2, position.width-position.width/4-3, position.height/2-5);
-            var ComponentPosition = new Rect(position.x, position.y+position.height/2-2f, position.width-position.width/4, position.height/2-5);
-            var TextPosition = new Rect(position.x+(position.width-position.width/4)+3, position.y+position.height/2-2f, position.width/4-3, position.height/2-5);
+            
+            object currentComponent = null;
+            string currentDirection = "";
 
-            //First line of editor
+            GetComponentAndDirection(out currentComponent, out currentDirection, property);
+
             EditorGUI.PrefixLabel(LabelPosition, new GUIContent("Parameter name"));
 
             string buttonText = currentDirection;
@@ -92,15 +106,14 @@ namespace sapra.EasyParameters.Editor
                     newMenu.ShowAsContext();
                 }
             }
-
+        }
+        private void GenerateBottomLine(SerializedProperty property, Rect position)
+        {
+            var ComponentPosition = new Rect(position.x, position.y+position.height/2-2f, position.width-position.width/4, position.height/2-5);
+            var TextPosition = new Rect(position.x+(position.width-position.width/4)+3, position.y+position.height/2-2f, position.width/4-3, position.height/2-5);
             ObjectField(property, ComponentPosition);
             property.FindPropertyRelative("nameOnAnimator").stringValue = EditorGUI.TextField(TextPosition, property.FindPropertyRelative("nameOnAnimator").stringValue, EditorStyles.textField);
-        
-            //End property Drawer
-            EditorGUI.indentLevel = indent;
-            EditorGUI.EndProperty();
         }
-
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
             //Rewrite Height
