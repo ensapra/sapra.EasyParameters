@@ -184,10 +184,11 @@ namespace sapra.EasyParameters.Editor
             return resultWord;
         }
 
-        protected string getWithoutDot(string target)
+        protected string getWithoutDot(string baseName)
         {
-            string[] parts = target.Split('.');
-            return parts[parts.Length-1];
+            var splited = baseName.Split('.');
+            var splitedLast = splited[splited.Length-1].Split(' ');
+            return splitedLast[splitedLast.Length-1];
         }
     }
 }
