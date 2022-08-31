@@ -24,7 +24,7 @@ jobs:
       - name: "Automated Version Bump"
         uses: "phips28/gh-action-bump-version@master"
         with: 
-          token: ${{ secrets.TOKEN_ACTION }}
+          github-token: ${{ secrets.TOKEN_ACTION }}
       - name: "cat package.json"
         run: cat ./package.json
         
