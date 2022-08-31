@@ -17,8 +17,7 @@ jobs:
       - name: "Checkout source code"
         uses: "actions/checkout@v2"
         with:
-          ref: ${{ github.ref }}
-          token: ${{ secrets.TOKEN_ACTION }}
+          github-token: ${{ secrets.TOKEN_ACTION }}
       - name: "cat package.json"
         run: cat ./package.json
       - name: "Automated Version Bump"
