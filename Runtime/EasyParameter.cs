@@ -12,9 +12,7 @@ namespace sapra.EasyParameters
         [SerializeField] private string nameOnAnimator = "";
         [SerializeField]private Component valueHolderComponent;
         [SerializeReference]private object valueHolderReference;
-
         [SerializeField] protected bool isReference = false;
-
         public void SetParameter(string fieldName, string nameOnAnimator)
         {
             this.fieldName = fieldName;
@@ -23,22 +21,15 @@ namespace sapra.EasyParameters
         public void SetParentObject(object parentObject)
         {
             if(parentObject is Component component)
-            {
-                this.valueHolderComponent = component;
-                isReference = false;
-            }
+                this.valueHolderComponent = component;            
             else
-            {
                 this.valueHolderReference = parentObject;
-                isReference = true;
-            }
-            
+            isReference = !(parentObject is Component);
         }
         public void ProcessEasyParameter(Animator _animator)
         {
             if(valueHolderComponent == null && valueHolderReference == null)
                 return;
-
             object valueHolder = isReference ? valueHolderReference : valueHolderComponent;
             object valueFound = null;
             string[] parts = fieldName.Split(" ");
@@ -52,7 +43,6 @@ namespace sapra.EasyParameters
                 if(paramInfo != null)        
                     valueFound = paramInfo.GetValue(valueHolder);
             }
-            
             SetAnimator(_animator, valueFound);
         }
         void SetAnimator(Animator _animator, object value)
