@@ -1,14 +1,20 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using System.Reflection;
 
 namespace sapra.EasyParameters
 {
-    public abstract class EasyParameter
+    [System.Serializable]
+    public class EasyParameter 
     {
         [SerializeField] private string fieldName = "";
         [SerializeField] private string nameOnAnimator = "";
-        [SerializeField] private object finalObject = null;
-        [SerializeField] [SerializeReference] private object parentObject;
+        [SerializeField]private Component valueHolderComponent;
+        [SerializeReference]private object valueHolderReference;
+
+        [SerializeField] protected bool isReference = false;
+
         public void SetParameter(string fieldName, string nameOnAnimator)
         {
             this.fieldName = fieldName;
@@ -16,52 +22,52 @@ namespace sapra.EasyParameters
         }
         public void SetParentObject(object parentObject)
         {
-            this.parentObject = parentObject;
+            if(parentObject is Component component)
+            {
+                this.valueHolderComponent = component;
+                isReference = false;
+            }
+            else
+            {
+                this.valueHolderReference = parentObject;
+                isReference = true;
+            }
+            
         }
         public void ProcessEasyParameter(Animator _animator)
         {
-            object originalComponent = parentObject;// GetSelectedObject();
-            if(originalComponent == null)
+            if(valueHolderComponent == null && valueHolderReference == null)
                 return;
-            string[] fields = fieldName.Split('/');
-            string variableName = fields[fields.Length-1].Split(' ')[1];
-            object objectFound = null;
-            for(int i = 1; i < fields.Length; i++)
-            {
-                if(objectFound == null)
-                    objectFound = GetParameter(originalComponent, fields[i]);
-                else
-                    objectFound = GetParameter(objectFound, fields[i]);
-            }
-            this.finalObject = objectFound;
-            SetAnimator(_animator);
-        }
-        object GetParameter(object component, string field)
-        {
-            string[] parts = field.Split(' ');
-            field = parts[parts.Length-1];
-            FieldInfo fieldInfo = component.GetType().GetField(field);
-            if(fieldInfo != null)        
-                return fieldInfo.GetValue(component);        
 
-            PropertyInfo paramInfo = component.GetType().GetProperty(field);
-            if(paramInfo != null)        
-                return paramInfo.GetValue(component);
+            object valueHolder = isReference ? valueHolderReference : valueHolderComponent;
+            object valueFound = null;
+            string[] parts = fieldName.Split(" ");
+            var realFieldName = parts[parts.Length-1];
+            FieldInfo fieldInfo = valueHolder.GetType().GetField(realFieldName);
+            if(fieldInfo != null)        
+                valueFound = fieldInfo.GetValue(valueHolder);        
+            else
+            {
+                PropertyInfo paramInfo = valueHolder.GetType().GetProperty(realFieldName);
+                if(paramInfo != null)        
+                    valueFound = paramInfo.GetValue(valueHolder);
+            }
             
-            return null;
+            SetAnimator(_animator, valueFound);
         }
-        void SetAnimator(Animator _animator)
+        void SetAnimator(Animator _animator, object value)
         {
-            if(finalObject == null)
+            if(value == null)
                 return;
-            if(finalObject is float)
-                _animator.SetFloat(nameOnAnimator, (float)finalObject);
             
-            if(finalObject is int)        
-                _animator.SetInteger(nameOnAnimator, (int)finalObject);
+            if(value is float)
+                _animator.SetFloat(nameOnAnimator, (float)value);
             
-            if(finalObject is bool)        
-                _animator.SetBool(nameOnAnimator, (bool)finalObject);
+            if(value is int)        
+                _animator.SetInteger(nameOnAnimator, (int)value);
+            
+            if(value is bool)        
+                _animator.SetBool(nameOnAnimator, (bool)value);
         }
     }
 }
