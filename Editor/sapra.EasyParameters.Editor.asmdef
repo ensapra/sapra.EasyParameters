@@ -2,7 +2,7 @@
     "name": "sapra.EasyParameters.Editor",
     "rootNamespace": "sapra",
     "references": [
-        "GUID:66208f50338ebab47b0461391e926a67"
+        "GUID:f3c32a04cf9e54f4288d74b1a36fabfa"
     ],
     "includePlatforms": [
         "Editor"

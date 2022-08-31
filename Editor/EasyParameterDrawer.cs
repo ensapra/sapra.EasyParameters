@@ -2,29 +2,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-using UnityEditorInternal;
 using System;
 using System.Reflection;
-using sapra.EasyParameters;
 
 namespace sapra.EasyParameters.Editor
 {
-    public abstract class EasyParameterDrawer<T> : PropertyDrawer where T : class
+    [CustomPropertyDrawer(typeof(EasyParameter))]
+    public class EasyParameterDrawer : PropertyDrawer
     {
-        /// <summary>
-        /// Draws the second line on the editor
-        /// <summary/>
-        protected abstract void ObjectField(SerializedProperty property, Rect ComponentPosition);
+        private const string VALUE_HOLDER_UNITY = "valueHolderComponent";
+        private const string VALUE_HOLDER_REF = "valueHolderReference";
 
-        /// <summary>
-        /// Should return the list of objects to be analized
-        /// <summary/>
-        protected abstract object[] GetObjects(object component);
-        
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             //Begin Property Drawer
             var indent = EditorGUI.indentLevel;
+            position.height = EditorGUIUtility.singleLineHeight*2+EditorGUIUtility.standardVerticalSpacing;
             EditorGUI.indentLevel = 0;
             EditorGUI.BeginProperty(position, label, property);
 
@@ -35,69 +28,47 @@ namespace sapra.EasyParameters.Editor
             EditorGUI.indentLevel = indent;
             EditorGUI.EndProperty();
         }
-
-        public void GetComponentAndDirection(out object currentComponent, out string currentDirection, SerializedProperty property)
+        private void GenerateBottomLine(SerializedProperty property, Rect position)
         {
-            //Get currentValues
-            currentComponent = null;
-            bool isObject = typeof(T).IsEquivalentTo(typeof(Component));
-            if(isObject)
-                currentComponent = property.FindPropertyRelative("parentObject").objectReferenceValue;
-            else
-                currentComponent = property.FindPropertyRelative("parentObject").managedReferenceValue;
+            SerializedProperty componentProperty = property.FindPropertyRelative(VALUE_HOLDER_UNITY);
+            SerializedProperty referenceProperty = property.FindPropertyRelative(VALUE_HOLDER_REF);
+
+            SerializedProperty propertyName = property.FindPropertyRelative("fieldName");
+            SerializedProperty isReference = property.FindPropertyRelative("isReference");
+            object FieldsGetter = isReference.boolValue ? referenceProperty.managedReferenceValue : componentProperty.objectReferenceValue;
+            var fieldName = propertyName.stringValue;
+
+            var ButtonPosition = new Rect(position.x, position.y+EditorGUIUtility.singleLineHeight+EditorGUIUtility.standardVerticalSpacing, position.width-position.width/4,EditorGUIUtility.singleLineHeight);
+            var ButtonText = fieldName.Equals("") ? "Select a Field" : fieldName;
             
-            string fieldValue = property.FindPropertyRelative("fieldName").stringValue;
-            currentDirection = "";
-            if(fieldValue != "" && currentComponent != null)
-            {
-                string text = isObject ? currentComponent.GetType() + "/" + fieldValue : fieldValue;
-                currentDirection = getWithoutDot(text);
-            }
-        }
-        
-        private void GenerateTopLine(SerializedProperty property,Rect position)
-        {
-            var ButtonPosition = new Rect(position.x, position.y, position.width-position.width/4, position.height/2-5);
-            var LabelPosition = new Rect(position.x+(position.width-position.width/4)+3, position.y+2, position.width-position.width/4-3, position.height/2-5);
-            
-            object currentComponent = null;
-            string currentDirection = "";
-
-            GetComponentAndDirection(out currentComponent, out currentDirection, property);
-
-            EditorGUI.PrefixLabel(LabelPosition, new GUIContent("Parameter name"));
-
-            string buttonText = currentDirection;
-            if(currentDirection == "")
-                buttonText = "Select a Field";        
-            if(currentComponent == null)
+            if(FieldsGetter == null)
                 EditorGUI.DropShadowLabel(ButtonPosition, "An Object should be selected");
             else
-            {       
-                if(GUI.Button(ButtonPosition, buttonText))
+            {
+                if(GUI.Button(ButtonPosition, ButtonText))
                 {
                     GenericMenu newMenu = new GenericMenu();
-                    newMenu.AddItem(new GUIContent("None"), currentDirection.Equals(""), 
+                    newMenu.AddItem(new GUIContent("None"), fieldName.Equals(""), 
                     () =>
                     {
-                        property.FindPropertyRelative("fieldName").stringValue = "";
+                        propertyName.stringValue = "";
                         property.serializedObject.ApplyModifiedProperties();
                     });
-                    object[] objectsFound = GetObjects(currentComponent);
+                    object[] objectsFound = GetObjects(FieldsGetter);
                     foreach(object objectFound in objectsFound)
                     {
                         List<string> fieldsFound = new List<string>();
-                        GetFields(objectFound.GetType(), ref fieldsFound, objectFound.GetType().ToString());
+                        GetFields(objectFound.GetType(), ref fieldsFound, objectFound.GetType().Name);
                         foreach(string field in fieldsFound)      
                         {
-                            string simpleDirection = getWithoutDot(field);
-                            newMenu.AddItem(new GUIContent(simpleDirection), currentDirection.Equals(simpleDirection), 
+                            newMenu.AddItem(new GUIContent(field), fieldName.Equals(field), 
                             () => {
                                 Undo.RecordObject(property.serializedObject.targetObject, "Added a new parameters to " + property.serializedObject.targetObject.name);
-                                if(typeof(T).IsEquivalentTo(typeof(Component)))
-                                    property.FindPropertyRelative("parentObject").objectReferenceValue = objectFound as Component;
+                                if(isReference.boolValue)
+                                    referenceProperty.managedReferenceValue = objectFound;
                                 else
-                                    property.FindPropertyRelative("parentObject").managedReferenceValue = (T)objectFound;
+                                    componentProperty.objectReferenceValue = objectFound as Component;
+                                
                                 property.FindPropertyRelative("fieldName").stringValue = field;
                                 property.serializedObject.ApplyModifiedProperties();
                             });          
@@ -106,54 +77,62 @@ namespace sapra.EasyParameters.Editor
                     newMenu.ShowAsContext();
                 }
             }
+            var LabelPosition = new Rect(position.x+(position.width-position.width/4)+3, ButtonPosition.y, position.width-position.width/4-3, EditorGUIUtility.singleLineHeight);
+            EditorGUI.PrefixLabel(LabelPosition, new GUIContent("Parameter name"));
         }
-        private void GenerateBottomLine(SerializedProperty property, Rect position)
+        private object[] GetObjects(object fromObject)
         {
-            var ComponentPosition = new Rect(position.x, position.y+position.height/2-2f, position.width-position.width/4, position.height/2-5);
-            var TextPosition = new Rect(position.x+(position.width-position.width/4)+3, position.y+position.height/2-2f, position.width/4-3, position.height/2-5);
-            ObjectField(property, ComponentPosition);
-            property.FindPropertyRelative("nameOnAnimator").stringValue = EditorGUI.TextField(TextPosition, property.FindPropertyRelative("nameOnAnimator").stringValue, EditorStyles.textField);
+            if(fromObject is Component component)
+            {
+                Component[] arrayOfComponents;
+                if(component != null)
+                    arrayOfComponents = component.GetComponents<Component>();
+                else
+                    arrayOfComponents = new Component[0];
+                return arrayOfComponents;
+            }
+            else
+                return new object[]{fromObject};
         }
-        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-        {
-            //Rewrite Height
-            float extraHeight = 30;
-            return base.GetPropertyHeight(property, label)+extraHeight;
-        }
-
-        protected void GetFields(Type objectType, ref List<string> newFields, string baseDirection)
+        
+        private void GetFields(Type objectType, ref List<string> newFields, string baseDirection)
         {
             FieldInfo[] fieldsInfo = objectType.GetFields(BindingFlags.Public | BindingFlags.Instance);
             PropertyInfo[] propertyInfos = objectType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.SuppressChangeType);
             if(fieldsInfo.Length > 0)
                 AddFieldInfo(fieldsInfo, newFields, baseDirection);
+            
             if(propertyInfos.Length > 0)
                 AddPropertyInfos(propertyInfos, newFields, baseDirection);
 
-            if(fieldsInfo.Length <= 0 && propertyInfos.Length<= 0)
-                newFields.Add(baseDirection);
+            /* if(fieldsInfo.Length <= 0 && propertyInfos.Length<= 0)
+                newFields.Add(baseDirection); */
         }
+
         void AddFieldInfo(FieldInfo[] fieldInfos, List<string> fields, string currentDirection)
         {
-            string baseDirection = currentDirection;
             foreach(FieldInfo info in fieldInfos)
             {
                 Type objectType = info.FieldType;
-                baseDirection = currentDirection + "/" + AddItemToList(fields, objectType, info.Name);  
-                GetFields(objectType, ref fields, baseDirection);
+                string fieldName = GetWithType(objectType, info.Name);
+                if(!fieldName.Equals(""))
+                    fields.Add(currentDirection + fieldName);
+    /*             Type objectType = info.FieldType;
+                baseDirection = currentDirection + GetWithType(objectType, info.Name);  
+                GetFields(objectType, ref fields, baseDirection); */
             }
         }
+
         void AddPropertyInfos(PropertyInfo[] propertyInfos, List<string> fields, string currentDirection)
         {
-            string baseDirection = currentDirection;
             foreach(PropertyInfo info in propertyInfos)
             {
                 try
                 {
                     Type objectType = info.PropertyType;
-                    string resultingName = AddItemToList(fields, objectType, info.Name); 
-                    if(resultingName != info.Name)
-                        fields.Add(currentDirection + "/" + resultingName);
+                    string fieldName = GetWithType(objectType, info.Name); 
+                    if(!fieldName.Equals(""))
+                        fields.Add(currentDirection + fieldName);
                 }
                 catch (System.Exception)
                 {    
@@ -161,34 +140,50 @@ namespace sapra.EasyParameters.Editor
                 }                     
             }
         }
-        string AddItemToList(List<string> fields, Type value, string fieldName)
+        string GetWithType(Type value, string fieldName)
         {
-            string resultWord = fieldName;
             if(value == null)
-                return resultWord;   
+                return "";   
             
             if(value.IsEquivalentTo(typeof(float)))     
             { 
-                resultWord = "float " + fieldName;
+                return "/float " + fieldName;
             }
             
             if(value.IsEquivalentTo(typeof(int)))     
             {
-                resultWord = "int " + fieldName;
+                return "/int " + fieldName;
             }
 
             if(value.IsEquivalentTo(typeof(bool)))
             {
-                resultWord = "bool " + fieldName;
+                return "/bool " + fieldName;
             }
-            return resultWord;
+
+            return "";
         }
 
-        protected string getWithoutDot(string baseName)
+        //Contains the fields options and the name on the animator
+        private void GenerateTopLine(SerializedProperty property, Rect position)
         {
-            var splited = baseName.Split('.');
-            var splitedLast = splited[splited.Length-1].Split(' ');
-            return splitedLast[splitedLast.Length-1];
+            var ComponentPosition = new Rect(position.x, position.y, position.width-position.width/4, EditorGUIUtility.singleLineHeight);
+            var TextPosition = new Rect(position.x+(position.width-position.width/4)+3, position.y, position.width/4-3, EditorGUIUtility.singleLineHeight);
+            ObjectHolderLine(property, ComponentPosition);
+            SerializedProperty nameOnAnimator = property.FindPropertyRelative("nameOnAnimator");
+            nameOnAnimator.stringValue = EditorGUI.TextField(TextPosition, nameOnAnimator.stringValue, EditorStyles.textField);
+        }
+
+
+        protected virtual void ObjectHolderLine(SerializedProperty property, Rect position)
+        {
+            EditorGUI.ObjectField(position, property.FindPropertyRelative(VALUE_HOLDER_UNITY), GUIContent.none);
+            property.FindPropertyRelative("isReference").boolValue = false;
+        }
+
+
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+        {
+            return EditorGUIUtility.singleLineHeight*2 + EditorGUIUtility.standardVerticalSpacing;
         }
     }
 }
