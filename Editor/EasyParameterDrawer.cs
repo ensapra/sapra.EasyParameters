@@ -10,14 +10,14 @@ namespace sapra.EasyParameters.Editor
     [CustomPropertyDrawer(typeof(EasyParameter))]
     public class EasyParameterDrawer : PropertyDrawer
     {
-        private const string VALUE_HOLDER_UNITY = "valueHolderComponent";
-        private const string VALUE_HOLDER_REF = "valueHolderReference";
+        protected const string VALUE_HOLDER_UNITY = "valueHolderComponent";
+        protected const string VALUE_HOLDER_REF = "valueHolderReference";
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             //Begin Property Drawer
             var indent = EditorGUI.indentLevel;
-            position.height = EditorGUIUtility.singleLineHeight*2+EditorGUIUtility.standardVerticalSpacing;
+            position.height = EditorGUIUtility.singleLineHeight*2+EditorGUIUtility.standardVerticalSpacing*3;
             EditorGUI.indentLevel = 0;
             EditorGUI.BeginProperty(position, label, property);
 
@@ -183,7 +183,7 @@ namespace sapra.EasyParameters.Editor
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            return EditorGUIUtility.singleLineHeight*2 + EditorGUIUtility.standardVerticalSpacing;
+            return EditorGUIUtility.singleLineHeight*2 + EditorGUIUtility.standardVerticalSpacing*3;
         }
     }
 }
