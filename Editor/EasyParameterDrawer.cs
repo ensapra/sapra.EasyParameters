@@ -28,6 +28,14 @@ namespace sapra.EasyParameters.Editor
             EditorGUI.indentLevel = indent;
             EditorGUI.EndProperty();
         }
+        //Contains the fields options and the name on the animator
+        private void GenerateTopLine(SerializedProperty property, Rect position)
+        {
+            var ComponentPosition = new Rect(position.x, position.y, position.width-position.width/4, EditorGUIUtility.singleLineHeight);
+            var LabelPosition = new Rect(position.x+(position.width-position.width/4)+3, position.y, position.width/4-3, EditorGUIUtility.singleLineHeight);
+            ObjectHolderLine(property, ComponentPosition);
+            EditorGUI.PrefixLabel(LabelPosition, new GUIContent("Parameter name"));
+        }
         private void GenerateBottomLine(SerializedProperty property, Rect position)
         {
             SerializedProperty componentProperty = property.FindPropertyRelative(VALUE_HOLDER_UNITY);
@@ -58,6 +66,8 @@ namespace sapra.EasyParameters.Editor
                     foreach(object objectFound in objectsFound)
                     {
                         List<string> fieldsFound = new List<string>();
+                        if(objectFound == null)
+                            continue;
                         GetFields(objectFound.GetType(), ref fieldsFound, objectFound.GetType().Name);
                         foreach(string field in fieldsFound)      
                         {
@@ -77,8 +87,9 @@ namespace sapra.EasyParameters.Editor
                     newMenu.ShowAsContext();
                 }
             }
-            var LabelPosition = new Rect(position.x+(position.width-position.width/4)+3, ButtonPosition.y, position.width-position.width/4-3, EditorGUIUtility.singleLineHeight);
-            EditorGUI.PrefixLabel(LabelPosition, new GUIContent("Parameter name"));
+            var TextPosition = new Rect(position.x+(position.width-position.width/4)+3, ButtonPosition.y,  position.width/4, EditorGUIUtility.singleLineHeight);
+            SerializedProperty nameOnAnimator = property.FindPropertyRelative("nameOnAnimator");
+            nameOnAnimator.stringValue = EditorGUI.TextField(TextPosition, nameOnAnimator.stringValue, EditorStyles.textField);
         }
         private object[] GetObjects(object fromObject)
         {
@@ -162,17 +173,6 @@ namespace sapra.EasyParameters.Editor
 
             return "";
         }
-
-        //Contains the fields options and the name on the animator
-        private void GenerateTopLine(SerializedProperty property, Rect position)
-        {
-            var ComponentPosition = new Rect(position.x, position.y, position.width-position.width/4, EditorGUIUtility.singleLineHeight);
-            var TextPosition = new Rect(position.x+(position.width-position.width/4)+3, position.y, position.width/4-3, EditorGUIUtility.singleLineHeight);
-            ObjectHolderLine(property, ComponentPosition);
-            SerializedProperty nameOnAnimator = property.FindPropertyRelative("nameOnAnimator");
-            nameOnAnimator.stringValue = EditorGUI.TextField(TextPosition, nameOnAnimator.stringValue, EditorStyles.textField);
-        }
-
 
         protected virtual void ObjectHolderLine(SerializedProperty property, Rect position)
         {
