@@ -26,7 +26,7 @@ namespace sapra.EasyParameters
                 this.valueHolderReference = parentObject;
             isReference = !(parentObject is Component);
         }
-        public void ProcessEasyParameter(Animator _animator)
+        public void Update(Animator _animator)
         {
             if(valueHolderComponent == null && valueHolderReference == null)
                 return;
