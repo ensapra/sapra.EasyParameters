@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
@@ -115,9 +114,6 @@ namespace sapra.EasyParameters.Editor
             
             if(propertyInfos.Length > 0)
                 AddPropertyInfos(propertyInfos, newFields, baseDirection);
-
-            /* if(fieldsInfo.Length <= 0 && propertyInfos.Length<= 0)
-                newFields.Add(baseDirection); */
         }
 
         void AddFieldInfo(FieldInfo[] fieldInfos, List<string> fields, string currentDirection)
@@ -128,9 +124,6 @@ namespace sapra.EasyParameters.Editor
                 string fieldName = GetWithType(objectType, info.Name);
                 if(!fieldName.Equals(""))
                     fields.Add(currentDirection + fieldName);
-    /*             Type objectType = info.FieldType;
-                baseDirection = currentDirection + GetWithType(objectType, info.Name);  
-                GetFields(objectType, ref fields, baseDirection); */
             }
         }
 

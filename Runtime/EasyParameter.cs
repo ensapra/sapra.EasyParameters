@@ -13,6 +13,11 @@ namespace sapra.EasyParameters
         [SerializeField]private Component valueHolderComponent;
         [SerializeReference]private object valueHolderReference;
         [SerializeField] protected bool isReference = false;
+
+        private FieldInfo fieldInfo;
+        private PropertyInfo propertyInfo;
+        public enum State{FieldFound, PropertyFound, None};
+        private State currentState = State.None;
         public void SetParameter(string fieldName, string nameOnAnimator)
         {
             this.fieldName = fieldName;
@@ -30,18 +35,32 @@ namespace sapra.EasyParameters
         {
             if(valueHolderComponent == null && valueHolderReference == null)
                 return;
+            if(_animator == null) return;
+
             object valueHolder = isReference ? valueHolderReference : valueHolderComponent;
             object valueFound = null;
             string[] parts = fieldName.Split(" ");
             var realFieldName = parts[parts.Length-1];
-            FieldInfo fieldInfo = valueHolder.GetType().GetField(realFieldName);
-            if(fieldInfo != null)        
-                valueFound = fieldInfo.GetValue(valueHolder);        
-            else
-            {
-                PropertyInfo paramInfo = valueHolder.GetType().GetProperty(realFieldName);
-                if(paramInfo != null)        
-                    valueFound = paramInfo.GetValue(valueHolder);
+            switch(currentState){
+                case State.FieldFound:
+                    valueFound = fieldInfo.GetValue(valueHolder);      
+                break;
+                case State.PropertyFound:
+                    valueFound = propertyInfo.GetValue(valueHolder);      
+                break;
+                case State.None:
+                    fieldInfo = valueHolder.GetType().GetField(realFieldName);
+                    if(fieldInfo != null){
+                        currentState = State.FieldFound;
+                        break;
+                    }
+
+                    propertyInfo = valueHolder.GetType().GetProperty(realFieldName);
+                    if(propertyInfo != null){
+                        currentState = State.PropertyFound;
+                        break;
+                    }     
+                break;
             }
             SetAnimator(_animator, valueFound);
         }
@@ -49,15 +68,21 @@ namespace sapra.EasyParameters
         {
             if(value == null)
                 return;
-            
-            if(value is float)
+
+            if(value is float){
                 _animator.SetFloat(nameOnAnimator, (float)value);
+                return;
+            }
             
-            if(value is int)        
+            if(value is int){       
                 _animator.SetInteger(nameOnAnimator, (int)value);
-            
-            if(value is bool)        
+                return;
+            }
+
+            if(value is bool){     
                 _animator.SetBool(nameOnAnimator, (bool)value);
+                return;
+            }
         }
     }
 }
